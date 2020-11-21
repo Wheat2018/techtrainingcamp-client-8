@@ -3,15 +3,19 @@ package com.example.wheattest;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.media.Image;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 public class AnnounceFactory
 {
@@ -24,64 +28,27 @@ public class AnnounceFactory
         switch (typeId)
         {
             case 0:
-                break;
+                return new AnnounceType0(context);
             case 1:
                 return new AnnounceType1(context);
+            case 2:
+                return new AnnounceType2(context);
+            case 3:
+                return new AnnounceType3(context);
+            case 4:
+                return new AnnounceType4(context);
             default:
                 return null;
         }
-        return null;
-    }
-}
-
-class AnnounceType1 extends Announce {
-    public ImageView image;
-    private final LinearLayout subLayout;
-    public AnnounceType1(Context context) {
-        super(context);
-        subLayout = new LinearLayout(context);
-        image = new ImageView(context);
-        setOrientation(HORIZONTAL);
-        subLayout.setOrientation(VERTICAL);
-
-        subLayout.addView(title);
-        subLayout.addView(author);
-
-        // Add
-        addView(subLayout);
-        addView(image);
-
-        SetInnerMargins(null);
-    }
-
-    @Override
-    public void SetInnerMargins(Rect innerMargins)
-    {
-        // Layout
-        if (innerMargins == null) innerMargins = new Rect();
-        title.setLayoutParams(params(match_parent, wrap_content, 1,
-                new Rect(px(innerMargins.left), px(innerMargins.top), px(16), px(0))));
-        author.setLayoutParams(params(match_parent, wrap_content, 0,
-                new Rect(px(innerMargins.left), px(0), px(16), px(innerMargins.bottom))));
-        subLayout.setLayoutParams(params(wrap_content, match_parent, 1, null));
-        image.setLayoutParams(params(wrap_content, match_parent, 0,
-                new Rect(px(16), px(innerMargins.top), px(innerMargins.right), px(innerMargins.bottom + 8))));
-    }
-
-    public void Set(String title, String author, Bitmap image)
-    {
-        this.title.setText(title);
-        this.author.setText(title);
-        final int w = getResources().getDisplayMetrics().widthPixels / 4 - px(16) * 2;
-        this.image.setImageBitmap(scaleMatrix(image, w, 0));
     }
 }
 
 abstract class Announce extends LinearLayout {
-    protected Paint paint;
-    protected int wrap_content = LinearLayout.LayoutParams.WRAP_CONTENT;
-    protected int match_parent = LinearLayout.LayoutParams.MATCH_PARENT;
-    public TextView title, author;
+    private final Paint paint;
+
+    public static final int wrap_content = LinearLayout.LayoutParams.WRAP_CONTENT;
+    public static final int match_parent = LinearLayout.LayoutParams.MATCH_PARENT;
+    protected TextView title, author;
 
     public Announce(Context context) {
         super(context);
@@ -98,8 +65,8 @@ abstract class Announce extends LinearLayout {
         author.setTextAppearance(R.style.AnnounceAuthorStyle);
         author.setGravity(Gravity.CENTER_VERTICAL);
         setWillNotDraw(false);
-
     }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -107,48 +74,176 @@ abstract class Announce extends LinearLayout {
         canvas.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1, paint);
     }
 
-    public abstract void SetInnerMargins(Rect innerMargins);
+    // Set values
+    public void SetValues(JSONObject values) { SetValues(Utils.jsonObjectToMap(values));}
+    public void SetValues(Map<String, String> values)
+    {
+        title.setText(values.get("title"));
+        author.setText(values.get("author"));
+    }
 
-    public LinearLayout.LayoutParams params(int width, int height, int weight, Rect margin)
+    // ==========Utility Methods===========
+
+    public static LinearLayout.LayoutParams params(int width, int height, int weight) { return params(width, height, weight, null); }
+    public static LinearLayout.LayoutParams params(int width, int height, int weight, Rect margins)
     {
         LinearLayout.LayoutParams imParams = new LinearLayout.LayoutParams(width, height);
         imParams.weight = weight;
-        if (margin != null)
+        if (margins != null)
         {
-            imParams.leftMargin = margin.left;
-            imParams.rightMargin = margin.right;
-            imParams.topMargin = margin.top;
-            imParams.bottomMargin = margin.bottom;
+            imParams.leftMargin = margins.left;
+            imParams.rightMargin = margins.right;
+            imParams.topMargin = margins.top;
+            imParams.bottomMargin = margins.bottom;
         }
         return imParams;
     }
+    public int px(int dp) { return Utils.dp2px(getResources(), dp);}
+}
 
-    /**
-     * 使用Matrix
-     * @param bitmap 原始的Bitmap
-     * @param width 目标宽度
-     * @param height 目标高度
-     * @return 缩放后的Bitmap
-     */
-    public static Bitmap scaleMatrix(@NotNull Bitmap bitmap, int width, int height){
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
-        float scaleW = (float)width / w;
-        float scaleH = (float)height / h;
-        if (width <= 0) scaleW = scaleH;
-        if (height <= 0) scaleH = scaleW;
 
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleW, scaleH); // 长和宽放大缩小的比例
-        return Bitmap.createBitmap(bitmap, 0, 0, w, h, matrix, true);
+class AnnounceType0 extends Announce {
+    protected LinearLayout subLayout;
+    public AnnounceType0(Context context) {
+        super(context);
+        subLayout = new LinearLayout(context);
+        setOrientation(HORIZONTAL);
+        subLayout.setOrientation(VERTICAL);
+
+
+        // Add
+        subLayout.addView(title);
+        subLayout.addView(author);
+        addView(subLayout);
+
+        // Layout
+        title.setLayoutParams(params(match_parent, wrap_content, 1));
+        author.setLayoutParams(params(match_parent, wrap_content, 0));
+        subLayout.setLayoutParams(params(wrap_content, match_parent, 1));
     }
 
-    public int px(float dp) {
-        final float scale = getResources().getDisplayMetrics().density; //当前屏幕密度因子
-        return (int)(dp * scale + 0.5f);
+}
+
+
+class AnnounceType1 extends AnnounceType0 {
+    protected ImageView image;
+
+    public AnnounceType1(Context context) {
+        super(context);
+        image = new ImageView(context);
+        // Add
+        addView(image);
+
+        // Layout
+        image.setLayoutParams(params(wrap_content, match_parent, 0,
+                new Rect(px(32), 0, 0, 0)));
     }
-    public int dp(float px) {
-        final float scale = getResources().getDisplayMetrics().density;
-        return (int) (px / scale + 0.5f);
+
+    @Override
+    public void SetValues(Map<String, String> values)
+    {
+        super.SetValues(values);
+        final int w = getResources().getDisplayMetrics().widthPixels / 4 - px(16) * 2;
+        image.setImageBitmap(Utils.scaleMatrix(Utils.loadBitmap(getResources(), values.get("cover")), w, 0));
+    }
+}
+
+class AnnounceType2 extends AnnounceType0 {
+    protected ImageView image;
+
+    public AnnounceType2(Context context) {
+        super(context);
+        image = new ImageView(context);
+        // Add
+        addView(image, 0);
+
+        // Layout
+        image.setLayoutParams(params(wrap_content, match_parent, 0,
+                new Rect(0, 0, px(32), 0)));
+    }
+
+    @Override
+    public void SetValues(Map<String, String> values)
+    {
+        super.SetValues(values);
+        final int w = getResources().getDisplayMetrics().widthPixels / 4 - Utils.dp2px(getResources(), 16) * 2;
+        image.setImageBitmap(Utils.scaleMatrix(Utils.loadBitmap(getResources(), values.get("cover")), w, 0));
+    }
+}
+
+class AnnounceType3 extends Announce {
+    protected ImageView image;
+
+    public AnnounceType3(Context context) {
+        super(context);
+        image = new ImageView(context);
+
+        setOrientation(VERTICAL);
+
+        // Add
+        addView(title);
+        addView(image);
+        addView(author);
+
+        // Layout
+        title.setLayoutParams(params(match_parent, wrap_content, 1));
+        image.setLayoutParams(params(match_parent, wrap_content, 2,
+                new Rect(0, px(16), 0, px(16))));
+        author.setLayoutParams(params(match_parent, wrap_content, 0));
+    }
+    @Override
+    public void SetValues(Map<String, String> values)
+    {
+        super.SetValues(values);
+        image.setImageBitmap(Utils.loadBitmap(getResources(), values.get("cover")));
+    }
+}
+
+class AnnounceType4 extends Announce {
+    protected LinearLayout subLayout;
+    protected ArrayList<ImageView> images;
+
+    public AnnounceType4(Context context) {
+        super(context);
+        subLayout = new LinearLayout(context);
+        images = new ArrayList<ImageView>();
+
+        setOrientation(VERTICAL);
+        subLayout.setOrientation(HORIZONTAL);
+
+        // Add
+        addView(title);
+        addView(subLayout);
+        addView(author);
+
+        // Layout
+        title.setLayoutParams(params(match_parent, wrap_content, 1));
+        subLayout.setLayoutParams(params(match_parent, wrap_content, 2,
+                new Rect(0, px(16), 0, px(16))));
+        author.setLayoutParams(params(match_parent, wrap_content, 0));
+    }
+
+    @Override
+    public void SetValues(Map<String, String> values)
+    {
+        super.SetValues(values);
+        final int w = getResources().getDisplayMetrics().widthPixels / 4 - Utils.dp2px(getResources(), 16) * 2;
+
+        subLayout.removeAllViews();
+        String covers = values.get("covers");
+        covers = covers.substring(1, covers.length() - 1);
+        for (String name : covers.split(","))
+        {
+            name = name.substring(1, name.length() - 1);
+            Bitmap bitmap = Utils.loadBitmap(getResources(), name);
+            ImageView imageView = new ImageView(getContext());
+            imageView.setImageBitmap(Utils.scaleMatrix(bitmap, w, 0));;
+            if (subLayout.getChildCount() == 0)
+                imageView.setLayoutParams(params(wrap_content, match_parent, 0, null));
+            else
+                imageView.setLayoutParams(params(wrap_content, match_parent, 0,
+                        new Rect(px(16), px(0), px(0), px(0))));
+            subLayout.addView(imageView);
+        }
     }
 }

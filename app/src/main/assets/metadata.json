@@ -20,7 +20,7 @@
       "author": "bytedance",
       "publishTime": "2019年10月7日",
       "type": 1,
-      "conver": "event_02.png"
+      "cover": "event_02.png"
     },
     {
       "id": "teamBuilding_04",
@@ -36,7 +36,7 @@
       "author": "vc mobile team",
       "publishTime": "2020年9月7日",
       "type": 4,
-      "covers": ["tb09_1.png", "tb09_2.png", "tb09_3.png", "tb09_4.png"]
+      "covers": ["tb09_1.jpeg", "tb09_2.jpeg", "tb09_3.jpeg", "tb09_4.jpeg"]
     }
   
 ]
