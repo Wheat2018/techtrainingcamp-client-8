@@ -5,6 +5,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
@@ -36,11 +37,16 @@ public class MainActivity extends AppCompatActivity {
     public void addAnnounce(JSONObject values) throws JSONException {
         int type = values.getInt("type");
         Announce announce = AnnounceFactory.createAnnounce(this, type);
-        contentLayout.addView(announce);
-        announce.setLayoutParams(Announce.params(Announce.match_parent, Announce.wrap_content, 0,
-                new Rect(0, px(16), 0, 0)));
-        announce.setPadding(px(16), 0, px(16), px(8));
-        announce.SetValues(values);
+        if (announce != null)
+        {
+            contentLayout.addView(announce);
+            announce.setLayoutParams(Announce.params(Announce.match_parent, Announce.wrap_content, 0,
+                    new Rect(0, px(16), 0, 0)));
+            announce.setPadding(px(16), 0, px(16), px(8));
+            announce.SetValues(values);
+        }
+        else
+            Log.e("addAnnounce", "Unsupported announce type id:" + type);
     }
 
     public int px(float dp) {

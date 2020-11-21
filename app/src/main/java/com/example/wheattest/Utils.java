@@ -40,13 +40,23 @@ public class Utils {
         return (int) (px / scale + 0.5f);
     }
 
-    public static Bitmap loadBitmap(Resources resources, String fileName) {
+    public static Bitmap getLoadFailBitmap(Resources resources)
+    {
+        int picId = resources.getIdentifier("android:drawable/ic_menu_report_image",
+                null, null);
+        return BitmapFactory.decodeStream(resources.openRawResource(picId));
+    }
+
+    public static Bitmap loadBitmap(@NotNull Resources resources, String fileName) throws IOException {
         try (InputStream is = resources.getAssets().open(fileName)) {
             return BitmapFactory.decodeStream(is);
-        } catch (IOException e) {
-            Log.e("loadBitmap", e.toString());
         }
-        return null;
+    }
+
+    public static Bitmap loadScaleBitmap(@NotNull Resources resources, String fileName,
+                                         int width, int height) throws IOException {
+        Bitmap bitmap = loadBitmap(resources, fileName);
+        return Utils.scaleMatrix(bitmap, width, height);
     }
 
     public static Bitmap scaleMatrix(@NotNull Bitmap bitmap, int width, int height) {
@@ -87,7 +97,7 @@ public class Utils {
 
 
     public static Map<String, String> jsonObjectToMap(JSONObject jsonObject) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         Iterator<String> it = jsonObject.keys();
         while (it.hasNext()) {
             String key = it.next();

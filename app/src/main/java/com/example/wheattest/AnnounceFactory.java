@@ -2,10 +2,10 @@ package com.example.wheattest;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.media.Image;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
@@ -14,6 +14,9 @@ import android.widget.TextView;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -25,21 +28,18 @@ public class AnnounceFactory
     }
     public static Announce createAnnounce(Context context, int typeId)
     {
-        switch (typeId)
-        {
-            case 0:
-                return new AnnounceType0(context);
-            case 1:
-                return new AnnounceType1(context);
-            case 2:
-                return new AnnounceType2(context);
-            case 3:
-                return new AnnounceType3(context);
-            case 4:
-                return new AnnounceType4(context);
-            default:
-                return null;
+        try {
+            Constructor cst = Class.forName("com.example.wheattest.AnnounceType" + typeId)
+                    .getConstructor(Context.class);
+            return (Announce) cst.newInstance(context);
+        } catch (IllegalAccessException
+                | InstantiationException
+                | ClassNotFoundException
+                | NoSuchMethodException
+                | InvocationTargetException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 }
 
@@ -144,7 +144,12 @@ class AnnounceType1 extends AnnounceType0 {
     {
         super.SetValues(values);
         final int w = getResources().getDisplayMetrics().widthPixels / 4 - px(16) * 2;
-        image.setImageBitmap(Utils.scaleMatrix(Utils.loadBitmap(getResources(), values.get("cover")), w, 0));
+        try {
+            image.setImageBitmap(Utils.loadScaleBitmap(getResources(), values.get("cover"), w, 0));
+        } catch (IOException e) {
+            Log.e("SetValues", "Fail to load picture: " + e.toString());
+            image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
+        }
     }
 }
 
@@ -167,7 +172,12 @@ class AnnounceType2 extends AnnounceType0 {
     {
         super.SetValues(values);
         final int w = getResources().getDisplayMetrics().widthPixels / 4 - Utils.dp2px(getResources(), 16) * 2;
-        image.setImageBitmap(Utils.scaleMatrix(Utils.loadBitmap(getResources(), values.get("cover")), w, 0));
+        try {
+            image.setImageBitmap(Utils.loadScaleBitmap(getResources(), values.get("cover"), w, 0));
+        } catch (IOException e) {
+            Log.e("SetValues", "Fail to load picture: " + e.toString());
+            image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
+        }
     }
 }
 
@@ -195,7 +205,13 @@ class AnnounceType3 extends Announce {
     public void SetValues(Map<String, String> values)
     {
         super.SetValues(values);
-        image.setImageBitmap(Utils.loadBitmap(getResources(), values.get("cover")));
+        try {
+            image.setImageBitmap(Utils.loadBitmap(getResources(), values.get("cover")));
+        } catch (IOException e) {
+            Log.e("SetValues", "Fail to load picture: " + e.toString());
+            image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
+        }
+
     }
 }
 
@@ -206,7 +222,7 @@ class AnnounceType4 extends Announce {
     public AnnounceType4(Context context) {
         super(context);
         subLayout = new LinearLayout(context);
-        images = new ArrayList<ImageView>();
+        images = new ArrayList<>();
 
         setOrientation(VERTICAL);
         subLayout.setOrientation(HORIZONTAL);
@@ -231,19 +247,36 @@ class AnnounceType4 extends Announce {
 
         subLayout.removeAllViews();
         String covers = values.get("covers");
-        covers = covers.substring(1, covers.length() - 1);
-        for (String name : covers.split(","))
+        if (covers == null)
         {
-            name = name.substring(1, name.length() - 1);
-            Bitmap bitmap = Utils.loadBitmap(getResources(), name);
-            ImageView imageView = new ImageView(getContext());
-            imageView.setImageBitmap(Utils.scaleMatrix(bitmap, w, 0));;
-            if (subLayout.getChildCount() == 0)
-                imageView.setLayoutParams(params(wrap_content, match_parent, 0, null));
-            else
-                imageView.setLayoutParams(params(wrap_content, match_parent, 0,
-                        new Rect(px(16), px(0), px(0), px(0))));
-            subLayout.addView(imageView);
+            Log.e("SetValues", "The announce requires multiple pictures, but json values have no \"covers\"");
+            ImageView image = new ImageView(getContext());
+            image.setLayoutParams(params(match_parent, match_parent, 0, null));
+            image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
+            subLayout.addView(image);
+        }
+        else
+        {
+            covers = covers.substring(1, covers.length() - 1);
+            for (String name : covers.split(","))
+            {
+                name = name.substring(1, name.length() - 1);
+                ImageView image = new ImageView(getContext());
+                try {
+                    image.setImageBitmap(Utils.loadScaleBitmap(getResources(), name, w, 0));
+                } catch (IOException e) {
+                    Log.e("SetValues", "Fail to load picture: " + e.toString());
+                    image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
+
+                }
+
+                if (subLayout.getChildCount() == 0)
+                    image.setLayoutParams(params(wrap_content, match_parent, 0, null));
+                else
+                    image.setLayoutParams(params(wrap_content, match_parent, 0,
+                            new Rect(px(16), px(0), px(0), px(0))));
+                subLayout.addView(image);
+            }
         }
     }
 }
