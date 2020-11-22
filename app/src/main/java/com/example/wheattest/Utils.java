@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -15,15 +16,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.lang.reflect.Array;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class Utils {
     private Utils() {
@@ -95,7 +103,6 @@ public class Utils {
         return null;
     }
 
-
     public static Map<String, String> jsonObjectToMap(JSONObject jsonObject) {
         Map<String, String> map = new HashMap<>();
         Iterator<String> it = jsonObject.keys();
@@ -107,4 +114,72 @@ public class Utils {
         return map;
     }
 
+    public static String getToken(String username, String password) throws IOException, JSONException {
+        URL url = new URL("https://vcapi.lvdaqian.cn/login");
+        HttpsURLConnection connection = null;
+        try{
+            connection = (HttpsURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("accept", "application/json");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            try (DataOutputStream dos = new DataOutputStream(connection.getOutputStream()))
+            {
+                dos.writeBytes("{ \"username\": \"" + username + "\", \"password\": \"" + password + "\"}");
+                dos.flush();
+            }
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream())))
+            {
+                StringBuilder builder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null)
+                    builder.append(line);
+                JSONObject object = new JSONObject(builder.toString());
+                return  object.getString("token");
+            }
+
+        }finally {
+            if (connection != null) connection.disconnect();
+        }
+    }
+
+    public static String askArticle(final String id)
+    {
+        try {
+            String token = getToken("string", "string");
+            Log.e("askArticle", token);
+
+            URL url = new URL("https://vcapi.lvdaqian.cn/article/" + id + "?markdown=true");
+            HttpsURLConnection connection = null;
+            try{
+                connection = (HttpsURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("accept", "application/json");
+                connection.setRequestProperty("Authorization", "Bearer " + token);
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream())))
+                {
+                    StringBuilder builder = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null)
+                        builder.append(line);
+                    JSONObject object = new JSONObject(builder.toString());
+                    String data = object.getString("data");
+                    //Log.e("askArticle", data);
+                    return data;
+                }
+
+            }finally {
+                if (connection != null) connection.disconnect();
+            }
+
+        } catch (IOException | JSONException e) {
+            Log.e("askArticle", e.toString());
+        }
+        return "";
+    }
 }

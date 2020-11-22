@@ -25,17 +25,23 @@ public class MainActivity extends AppCompatActivity {
 
         JSONArray jsonArray = Utils.fileToJSONArray(getResources(), "metadata.json");
         try {
-            for (int i = 0; i < jsonArray.length(); i++)
-            {
-                addAnnounce((JSONObject) jsonArray.get(i));
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    addAnnounce((JSONObject) jsonArray.get(i));
+                }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e("onCreate", e.toString());
         }
     }
 
-    public void addAnnounce(JSONObject values) throws JSONException {
-        int type = values.getInt("type");
+    public void addAnnounce(JSONObject values) {
+        int type = 0;
+        try {
+            type = values.getInt("type");
+        } catch (JSONException e) {
+            Log.e("addAnnounce", "Cannot determine type of the announce. Use default type(" + type + ")");
+        }
         Announce announce = AnnounceFactory.createAnnounce(this, type);
         if (announce != null)
         {

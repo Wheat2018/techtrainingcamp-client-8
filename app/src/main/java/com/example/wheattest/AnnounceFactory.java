@@ -1,6 +1,7 @@
 package com.example.wheattest;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -8,6 +9,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -37,7 +40,7 @@ public class AnnounceFactory
                 | ClassNotFoundException
                 | NoSuchMethodException
                 | InvocationTargetException e) {
-            e.printStackTrace();
+            Log.e("createAnnounce", e.toString());
         }
         return null;
     }
@@ -49,8 +52,9 @@ abstract class Announce extends LinearLayout {
     public static final int wrap_content = LinearLayout.LayoutParams.WRAP_CONTENT;
     public static final int match_parent = LinearLayout.LayoutParams.MATCH_PARENT;
     protected TextView title, author;
+    protected Map<String, String> values;
 
-    public Announce(Context context) {
+    public Announce(final Context context) {
         super(context);
         paint = new Paint();
         paint.setColor(getResources().getColor(R.color.colorLine, null));
@@ -65,6 +69,19 @@ abstract class Announce extends LinearLayout {
         author.setTextAppearance(R.style.AnnounceAuthorStyle);
         author.setGravity(Gravity.CENTER_VERTICAL);
         setWillNotDraw(false);
+
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (values != null){
+                    Intent intent = new Intent(context, ReaderActivity.class);
+                    intent.putExtra("id", values.get("id"));
+                    Log.e("onTouchEvent", values.get("id"));
+                    context.startActivity(intent);
+                    // Utils.askArticle(values.get("id"));
+                }
+            }
+        });
     }
 
 
@@ -76,17 +93,16 @@ abstract class Announce extends LinearLayout {
 
     // Set values
     public void SetValues(JSONObject values) { SetValues(Utils.jsonObjectToMap(values));}
-    public void SetValues(Map<String, String> values)
-    {
+    public void SetValues(Map<String, String> values) {
+        this.values = values;
         title.setText(values.get("title"));
-        author.setText(values.get("author"));
+        author.setText((values.get("author") + "  " + values.get("publishTime")));
     }
 
     // ==========Utility Methods===========
 
     public static LinearLayout.LayoutParams params(int width, int height, int weight) { return params(width, height, weight, null); }
-    public static LinearLayout.LayoutParams params(int width, int height, int weight, Rect margins)
-    {
+    public static LinearLayout.LayoutParams params(int width, int height, int weight, Rect margins) {
         LinearLayout.LayoutParams imParams = new LinearLayout.LayoutParams(width, height);
         imParams.weight = weight;
         if (margins != null)
@@ -140,8 +156,7 @@ class AnnounceType1 extends AnnounceType0 {
     }
 
     @Override
-    public void SetValues(Map<String, String> values)
-    {
+    public void SetValues(Map<String, String> values) {
         super.SetValues(values);
         final int w = getResources().getDisplayMetrics().widthPixels / 4 - px(16) * 2;
         try {
@@ -202,8 +217,7 @@ class AnnounceType3 extends Announce {
         author.setLayoutParams(params(match_parent, wrap_content, 0));
     }
     @Override
-    public void SetValues(Map<String, String> values)
-    {
+    public void SetValues(Map<String, String> values) {
         super.SetValues(values);
         try {
             image.setImageBitmap(Utils.loadBitmap(getResources(), values.get("cover")));
@@ -247,19 +261,16 @@ class AnnounceType4 extends Announce {
 
         subLayout.removeAllViews();
         String covers = values.get("covers");
-        if (covers == null)
-        {
+        if (covers == null) {
             Log.e("SetValues", "The announce requires multiple pictures, but json values have no \"covers\"");
             ImageView image = new ImageView(getContext());
             image.setLayoutParams(params(match_parent, match_parent, 0, null));
             image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
             subLayout.addView(image);
         }
-        else
-        {
+        else {
             covers = covers.substring(1, covers.length() - 1);
-            for (String name : covers.split(","))
-            {
+            for (String name : covers.split(",")) {
                 name = name.substring(1, name.length() - 1);
                 ImageView image = new ImageView(getContext());
                 try {
@@ -267,7 +278,6 @@ class AnnounceType4 extends Announce {
                 } catch (IOException e) {
                     Log.e("SetValues", "Fail to load picture: " + e.toString());
                     image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
-
                 }
 
                 if (subLayout.getChildCount() == 0)
