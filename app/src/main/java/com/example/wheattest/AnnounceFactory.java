@@ -1,5 +1,6 @@
 package com.example.wheattest;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -60,6 +62,7 @@ abstract class Announce extends LinearLayout {
         paint.setColor(getResources().getColor(R.color.colorLine, null));
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(getResources().getInteger(R.integer.lineWidth));
+
         title = new TextView(context);
         author = new TextView(context);
 
@@ -76,9 +79,7 @@ abstract class Announce extends LinearLayout {
                 if (values != null){
                     Intent intent = new Intent(context, ReaderActivity.class);
                     intent.putExtra("id", values.get("id"));
-                    Log.e("onTouchEvent", values.get("id"));
                     context.startActivity(intent);
-                    // Utils.askArticle(values.get("id"));
                 }
             }
         });
@@ -158,7 +159,7 @@ class AnnounceType1 extends AnnounceType0 {
     @Override
     public void SetValues(Map<String, String> values) {
         super.SetValues(values);
-        final int w = getResources().getDisplayMetrics().widthPixels / 4 - px(16) * 2;
+        final int w = Utils.screenWidth(getResources()) / 4 - px(16) * 2;
         try {
             image.setImageBitmap(Utils.loadScaleBitmap(getResources(), values.get("cover"), w, 0));
         } catch (IOException e) {
@@ -186,7 +187,7 @@ class AnnounceType2 extends AnnounceType0 {
     public void SetValues(Map<String, String> values)
     {
         super.SetValues(values);
-        final int w = getResources().getDisplayMetrics().widthPixels / 4 - Utils.dp2px(getResources(), 16) * 2;
+        final int w = Utils.screenWidth(getResources()) / 4 - Utils.dp2px(getResources(), 16) * 2;
         try {
             image.setImageBitmap(Utils.loadScaleBitmap(getResources(), values.get("cover"), w, 0));
         } catch (IOException e) {

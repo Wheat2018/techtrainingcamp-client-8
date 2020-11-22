@@ -3,9 +3,12 @@ package com.example.wheattest;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
@@ -22,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         contentLayout = findViewById(R.id.linearLayout);
-
+        Log.e("onCreate", "MainActivity:" + this.toString());
         JSONArray jsonArray = Utils.fileToJSONArray(getResources(), "metadata.json");
         try {
             if (jsonArray != null) {

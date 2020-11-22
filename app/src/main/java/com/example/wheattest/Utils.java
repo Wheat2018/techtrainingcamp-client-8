@@ -7,6 +7,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.util.Log;
+import android.util.Size;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -38,6 +41,24 @@ public class Utils {
         throw new UnsupportedOperationException();
     }
 
+    public static class FlipQuitListener extends GestureDetector.SimpleOnGestureListener{
+        Context context;
+        public FlipQuitListener(Context context){
+            this.context = context;
+        }
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.e("onFling", "start");
+            float x = e2.getX() - e1.getX();
+            // float y = Math.abs(e2.getY() - e1.getY());
+            if (x > Utils.screenWidth(context.getResources()) / 4.0){
+                Log.e("onFling", "quit");
+                return true;
+            }
+            return false;
+        }
+    }
+
     public static int dp2px(Resources resources, float dp) {
         final float scale = resources.getDisplayMetrics().density; //当前屏幕密度因子
         return (int) (dp * scale + 0.5f);
@@ -46,6 +67,14 @@ public class Utils {
     public static int px2dp(Resources resources, float px) {
         final float scale = resources.getDisplayMetrics().density;
         return (int) (px / scale + 0.5f);
+    }
+
+    public static int screenWidth(Resources resources){
+        return resources.getDisplayMetrics().widthPixels;
+    }
+
+    public static int screenHeight(Resources resources){
+        return resources.getDisplayMetrics().heightPixels;
     }
 
     public static Bitmap getLoadFailBitmap(Resources resources)
@@ -145,41 +174,32 @@ public class Utils {
         }
     }
 
-    public static String askArticle(final String id)
-    {
-        try {
-            String token = getToken("string", "string");
-            Log.e("askArticle", token);
+    public static String getArticle(final String id) throws IOException, JSONException {
+        String token = getToken("string", "string");
+        Log.e("getArticle", token);
 
-            URL url = new URL("https://vcapi.lvdaqian.cn/article/" + id + "?markdown=true");
-            HttpsURLConnection connection = null;
-            try{
-                connection = (HttpsURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("accept", "application/json");
-                connection.setRequestProperty("Authorization", "Bearer " + token);
-                connection.setConnectTimeout(5000);
-                connection.setReadTimeout(5000);
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(connection.getInputStream())))
-                {
-                    StringBuilder builder = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null)
-                        builder.append(line);
-                    JSONObject object = new JSONObject(builder.toString());
-                    String data = object.getString("data");
-                    //Log.e("askArticle", data);
-                    return data;
-                }
-
-            }finally {
-                if (connection != null) connection.disconnect();
+        URL url = new URL("https://vcapi.lvdaqian.cn/article/" + id + "?markdown=true");
+        HttpsURLConnection connection = null;
+        try{
+            connection = (HttpsURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("accept", "application/json");
+            connection.setRequestProperty("Authorization", "Bearer " + token);
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream())))
+            {
+                StringBuilder builder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null)
+                    builder.append(line);
+                JSONObject object = new JSONObject(builder.toString());
+                return object.getString("data");
             }
 
-        } catch (IOException | JSONException e) {
-            Log.e("askArticle", e.toString());
+        }finally {
+            if (connection != null) connection.disconnect();
         }
-        return "";
     }
 }
