@@ -3,9 +3,11 @@ package com.example.wheattest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
@@ -73,15 +75,31 @@ abstract class Announce extends LinearLayout {
         author.setTextAppearance(R.style.AnnounceAuthorStyle);
         author.setGravity(Gravity.CENTER_VERTICAL);
         setWillNotDraw(false);
+        setPadding(px(16), px(16), px(16), px(8));
 
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (values != null){
+                    title.setTextColor(R.color.colorMarkRead);
                     Intent intent = new Intent(context, ReaderActivity.class);
                     intent.putExtra("id", values.get("id"));
                     context.startActivity(intent);
                 }
+            }
+        });
+
+        setOnTouchListener(new OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    setBackgroundColor(Color.LTGRAY);
+                }
+                else {
+                    setBackgroundColor(0x00000000);
+                }
+                return false;
             }
         });
     }

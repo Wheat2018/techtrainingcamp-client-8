@@ -208,4 +208,14 @@ public class Utils {
             if (connection != null) connection.disconnect();
         }
     }
+
+    public static void newThreadRunOnUI(final Activity activity, final Runnable runnable)
+    {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                activity.runOnUiThread(runnable);
+            }
+        }).start();
+    }
 }

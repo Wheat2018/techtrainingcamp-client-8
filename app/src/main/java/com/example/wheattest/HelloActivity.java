@@ -21,8 +21,7 @@ public class HelloActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                Intent intent = new Intent(HelloActivity.this, MainActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(HelloActivity.this, MainActivity.class));
                 finish();
             }
         }).start();

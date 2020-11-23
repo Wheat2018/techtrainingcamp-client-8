@@ -6,6 +6,7 @@
     <color name="colorLine">#aaaaaa</color>
     <color name="colorHelloText">#FF877D7D</color>
     <color name="colorHelloTitle">#FFB6AEAB</color>
+    <color name="colorMarkRead">#712A2A</color>
 
     <integer name="lineWidth">2</integer>
 </resources>
