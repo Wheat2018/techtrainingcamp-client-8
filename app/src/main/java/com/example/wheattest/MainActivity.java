@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
                     new Rect(0, px(16), 0, 0)));
             announce.setPadding(px(16), 0, px(16), px(8));
             announce.SetValues(values);
+            announce.mainActivity = this;
         }
         else
             Log.e("addAnnounce", "Unsupported announce type id:" + type);

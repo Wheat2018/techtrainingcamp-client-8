@@ -55,6 +55,7 @@ abstract class Announce extends LinearLayout {
     public static final int match_parent = LinearLayout.LayoutParams.MATCH_PARENT;
     protected TextView title, author;
     protected Map<String, String> values;
+    public MainActivity mainActivity;
 
     public Announce(final Context context) {
         super(context);

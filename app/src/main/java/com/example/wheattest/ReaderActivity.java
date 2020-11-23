@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -43,17 +44,11 @@ public class ReaderActivity extends AppCompatActivity {
         }).start();
 
         gesture = new GestureDetector(this, new Utils.FlipQuitListener(this));
-        ((TextView)findViewById(R.id.textView)).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Log.e("onTouch", "" + event.getAction());
-
-                gesture.onTouchEvent(event);
-                (findViewById(R.id.textView)).performClick();
-                return false;
-            }
-        });
     }
 
-
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        gesture.onTouchEvent(ev);
+        return super.dispatchTouchEvent(ev);
+    }
 }

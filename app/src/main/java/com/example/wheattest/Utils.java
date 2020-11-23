@@ -1,5 +1,6 @@
 package com.example.wheattest;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -42,17 +43,22 @@ public class Utils {
     }
 
     public static class FlipQuitListener extends GestureDetector.SimpleOnGestureListener{
-        Context context;
-        public FlipQuitListener(Context context){
-            this.context = context;
+        Activity activity;
+        public FlipQuitListener(Activity activity){
+            this.activity = activity;
         }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Log.e("onFling", "start");
             float x = e2.getX() - e1.getX();
-            // float y = Math.abs(e2.getY() - e1.getY());
-            if (x > Utils.screenWidth(context.getResources()) / 4.0){
-                Log.e("onFling", "quit");
+            float y = Math.abs(e2.getY() - e1.getY());
+            if (x > Utils.screenWidth(activity.getResources()) / 4.0 && Math.abs(y / x) < 0.577){
+                activity.finish();
                 return true;
             }
             return false;
