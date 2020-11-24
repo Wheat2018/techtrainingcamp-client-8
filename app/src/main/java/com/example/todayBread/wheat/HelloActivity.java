@@ -1,4 +1,4 @@
-package com.example.wheattest;
+package com.example.todayBread.wheat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.example.todayBread.R;
 
 public class HelloActivity extends AppCompatActivity {
 

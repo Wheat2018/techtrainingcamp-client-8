@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.wheattest">
+    package="com.example.todayBread">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -11,7 +11,9 @@
         android:roundIcon="@mipmap/dog_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".HelloActivity"
+        <activity android:name="com.example.todayBread.wangjue.LoginActivity"/>
+        <activity android:name="com.example.todayBread.wangjue.ImageTextActivity"/>
+        <activity android:name="com.example.todayBread.wheat.HelloActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,14 +22,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ReaderActivity"
-            android:parentActivityName=".MainActivity">
+            android:name="com.example.todayBread.wheat.ReaderActivity"
+            android:parentActivityName="com.example.todayBread.wheat.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="com.example.todayBread.wheat.MainActivity" />
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.todayBread.wheat.MainActivity"
             android:launchMode="singleTask">
         </activity>
     </application>

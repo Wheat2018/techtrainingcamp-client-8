@@ -1,4 +1,4 @@
-package com.example.wheattest;
+package com.example.todayBread.wheat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -13,6 +13,9 @@ import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.todayBread.R;
+import com.example.todayBread.wangjue.StaticInterface;
 
 import org.json.JSONObject;
 
@@ -31,7 +34,7 @@ public class AnnounceFactory
     public static Announce createAnnounce(Context context, int typeId)
     {
         try {
-            Constructor cst = Class.forName("com.example.wheattest.AnnounceType" + typeId)
+            Constructor cst = Class.forName("com.example.todayBread.wheat.AnnounceType" + typeId)
                     .getConstructor(Context.class);
             return (Announce) cst.newInstance(context);
         } catch (IllegalAccessException
@@ -73,14 +76,14 @@ abstract class Announce extends LinearLayout {
         setWillNotDraw(false);
         setPadding(px(16), px(16), px(16), px(8));
 
-        setOnClickListener(v -> {
-            if (values != null){
-                title.setTextColor(getResources().getColor(R.color.colorMarkRead, null));
-                Intent intent = new Intent(context, ReaderActivity.class);
-                intent.putExtra("id", values.get("id"));
-                context.startActivity(intent);
-            }
-        });
+//        setOnClickListener(v -> {
+//            if (values != null){
+//                title.setTextColor(getResources().getColor(R.color.colorMarkRead, null));
+//                Intent intent = new Intent(context, ReaderActivity.class);
+//                intent.putExtra("id", values.get("id"));
+//                context.startActivity(intent);
+//            }
+//        });
 
         setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -168,12 +171,7 @@ class AnnounceType1 extends AnnounceType0 {
     public void SetValues(Map<String, String> values) {
         super.SetValues(values);
         final int w = Utils.screenWidth(getResources()) / 4 - px(16) * 2;
-        try {
-            image.setImageBitmap(Utils.loadScaleBitmap(getResources(), values.get("cover"), w, 0));
-        } catch (IOException e) {
-            Log.e("SetValues", "Fail to load picture: " + e.toString());
-            image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
-        }
+        image.setImageBitmap(Utils.safeLoadScaleBitmap(getResources(), values.get("cover"), w, 0));
     }
 }
 
@@ -196,12 +194,7 @@ class AnnounceType2 extends AnnounceType0 {
     {
         super.SetValues(values);
         final int w = Utils.screenWidth(getResources()) / 4 - Utils.dp2px(getResources(), 16) * 2;
-        try {
-            image.setImageBitmap(Utils.loadScaleBitmap(getResources(), values.get("cover"), w, 0));
-        } catch (IOException e) {
-            Log.e("SetValues", "Fail to load picture: " + e.toString());
-            image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
-        }
+        image.setImageBitmap(Utils.safeLoadScaleBitmap(getResources(), values.get("cover"), w, 0));
     }
 }
 
@@ -228,13 +221,7 @@ class AnnounceType3 extends Announce {
     @Override
     public void SetValues(Map<String, String> values) {
         super.SetValues(values);
-        try {
-            image.setImageBitmap(Utils.loadBitmap(getResources(), values.get("cover")));
-        } catch (IOException e) {
-            Log.e("SetValues", "Fail to load picture: " + e.toString());
-            image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
-        }
-
+        image.setImageBitmap(Utils.safeLoadBitmap(getResources(), values.get("cover")));
     }
 }
 
@@ -282,13 +269,7 @@ class AnnounceType4 extends Announce {
             for (String name : covers.split(",")) {
                 name = name.substring(1, name.length() - 1);
                 ImageView image = new ImageView(getContext());
-                try {
-                    image.setImageBitmap(Utils.loadScaleBitmap(getResources(), name, w, 0));
-                } catch (IOException e) {
-                    Log.e("SetValues", "Fail to load picture: " + e.toString());
-                    image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
-                }
-
+                image.setImageBitmap(Utils.safeLoadScaleBitmap(getResources(), name, w, 0));
                 if (subLayout.getChildCount() == 0)
                     image.setLayoutParams(params(wrap_content, match_parent, 0, null));
                 else

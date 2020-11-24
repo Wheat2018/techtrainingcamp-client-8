@@ -1,25 +1,16 @@
-package com.example.wheattest;
+package com.example.todayBread.wheat;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.RotateAnimation;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.json.JSONException;
-import org.w3c.dom.Text;
-
-import java.io.IOException;
+import com.example.todayBread.R;
 
 public class ReaderActivity extends AppCompatActivity {
     private GestureDetector gesture;

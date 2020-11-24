@@ -1,4 +1,4 @@
-package com.example.wheattest;
+package com.example.todayBread.wheat;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -6,9 +6,13 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.todayBread.R;
+import com.example.todayBread.wangjue.StaticInterface;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,19 +39,17 @@ public class MainActivity extends AppCompatActivity {
                         Message msg = new Message();
                         msg.obj = obj;
                         handler.sendMessage(msg);
-                        // addAnnounce((JSONObject) jsonArray.get(i));
                     } catch (JSONException e) {
                         Log.e("onCreate", e.toString());
                     }
                 }
             }
         }).start();
-//        findViewById(R.id.scrollView).setOnScrollChangeListener(new View.OnScrollChangeListener() {
-//            @Override
-//            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-//                Log.e("onScrollChange", String.format("%d, %d, %d, %d", scrollX, scrollY, oldScrollX, oldScrollY));
-//            }
-//        });
+        ScrollView scrollView = findViewById(R.id.scrollView);
+        scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            Log.e("onScrollChange", String.format("%d, %d, %d, %d", scrollX, scrollY, oldScrollX, oldScrollY));
+            Log.e("onScrollChange", "Height: " + (contentLayout.getHeight() - scrollView.getHeight() - scrollY));
+        });
     }
 
     private static final Handler handler = new Handler(Looper.getMainLooper()){
@@ -73,6 +75,14 @@ public class MainActivity extends AppCompatActivity {
             announce.setLayoutParams(Announce.params(Announce.match_parent, Announce.wrap_content, 0, null));
             announce.SetValues(values);
             announce.mainActivity = this;
+
+            announce.setOnClickListener(v -> {
+                if (values != null){
+                    announce.title.setTextColor(getResources().getColor(R.color.colorMarkRead, null));
+                    StaticInterface.askArticle(this, values);
+                }
+            });
+
         }
         else
             Log.e("addAnnounce", "Unsupported announce type id:" + type);

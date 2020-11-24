@@ -1,4 +1,4 @@
-package com.example.wheattest;
+package com.example.todayBread.wheat;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -84,10 +84,29 @@ public class Utils {
         }
     }
 
+    public static Bitmap safeLoadBitmap(@NotNull Resources resources, String fileName){
+        try {
+            return loadBitmap(resources, fileName);
+        } catch (IOException e) {
+            Log.e("safeLoadBitmap", e.toString());
+            return getLoadFailBitmap(resources);
+        }
+    }
+
     public static Bitmap loadScaleBitmap(@NotNull Resources resources, String fileName,
                                          int width, int height) throws IOException {
         Bitmap bitmap = loadBitmap(resources, fileName);
         return Utils.scaleMatrix(bitmap, width, height);
+    }
+
+    public static Bitmap safeLoadScaleBitmap(@NotNull Resources resources, String fileName,
+                                             int width, int height){
+        try {
+            return loadScaleBitmap(resources, fileName, width, height);
+        } catch (IOException e) {
+            Log.e("safeLoadScaleBitmap", e.toString());
+            return getLoadFailBitmap(resources);
+        }
     }
 
     public static Bitmap scaleMatrix(@NotNull Bitmap bitmap, int width, int height) {
