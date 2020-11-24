@@ -1,6 +1,7 @@
 package com.example.wheattest;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -8,6 +9,10 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,24 +31,17 @@ public class ReaderActivity extends AppCompatActivity {
 
         final String articleId = getIntent().getStringExtra("id");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final String article = Utils.getArticle(articleId);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ((TextView)findViewById(R.id.textView)).setText(article);
-                        }
-                    });
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        Utils.asyncGetArticle(articleId, (article) -> {
+            runOnUiThread(() -> {
+                findViewById(R.id.loading).clearAnimation();
+                findViewById(R.id.loading).setVisibility(View.INVISIBLE);
+                ((TextView)findViewById(R.id.textView)).setText(article);
+            });
+        });
 
         gesture = new GestureDetector(this, new Utils.FlipQuitListener(this));
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.loading_anim);
+        findViewById(R.id.loading).setAnimation(animation);
     }
 
     @Override

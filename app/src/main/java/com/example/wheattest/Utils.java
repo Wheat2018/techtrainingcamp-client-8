@@ -1,18 +1,13 @@
 package com.example.wheattest;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.util.Log;
-import android.util.Size;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -20,20 +15,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.lang.reflect.Array;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Vector;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -149,39 +137,24 @@ public class Utils {
         return map;
     }
 
-    public static String getToken(String username, String password) throws IOException, JSONException {
-        URL url = new URL("https://vcapi.lvdaqian.cn/login");
-        HttpsURLConnection connection = null;
-        try{
-            connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("accept", "application/json");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
-            try (DataOutputStream dos = new DataOutputStream(connection.getOutputStream()))
-            {
-                dos.writeBytes("{ \"username\": \"" + username + "\", \"password\": \"" + password + "\"}");
-                dos.flush();
-            }
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream())))
-            {
-                StringBuilder builder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null)
-                    builder.append(line);
-                JSONObject object = new JSONObject(builder.toString());
-                return  object.getString("token");
-            }
-
-        }finally {
-            if (connection != null) connection.disconnect();
-        }
+    interface Function<Arg>{
+        void run(Arg arg);
     }
-
+    public static void asyncGetArticle(String id, Function<String> callBack){
+        new Thread(() -> {
+            String article = null;
+            try {
+                article = getArticle(id);
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+            callBack.run(article);
+        }).start();
+    }
     public static String getArticle(final String id) throws IOException, JSONException {
-        String token = getToken("string", "string");
+        UserInfo.USER.setInfo("string", "string");
+        UserInfo.USER.login();
+        String token = UserInfo.USER.getToken();
         Log.e("getArticle", token);
 
         URL url = new URL("https://vcapi.lvdaqian.cn/article/" + id + "?markdown=true");
@@ -209,13 +182,4 @@ public class Utils {
         }
     }
 
-    public static void newThreadRunOnUI(final Activity activity, final Runnable runnable)
-    {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                activity.runOnUiThread(runnable);
-            }
-        }).start();
-    }
 }

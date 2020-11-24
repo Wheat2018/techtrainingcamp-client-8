@@ -3,18 +3,13 @@ package com.example.wheattest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -59,6 +54,7 @@ abstract class Announce extends LinearLayout {
     protected Map<String, String> values;
     public MainActivity mainActivity;
 
+    @SuppressLint("ClickableViewAccessibility")
     public Announce(final Context context) {
         super(context);
         paint = new Paint();
@@ -77,30 +73,23 @@ abstract class Announce extends LinearLayout {
         setWillNotDraw(false);
         setPadding(px(16), px(16), px(16), px(8));
 
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (values != null){
-                    title.setTextColor(R.color.colorMarkRead);
-                    Intent intent = new Intent(context, ReaderActivity.class);
-                    intent.putExtra("id", values.get("id"));
-                    context.startActivity(intent);
-                }
+        setOnClickListener(v -> {
+            if (values != null){
+                title.setTextColor(getResources().getColor(R.color.colorMarkRead, null));
+                Intent intent = new Intent(context, ReaderActivity.class);
+                intent.putExtra("id", values.get("id"));
+                context.startActivity(intent);
             }
         });
 
-        setOnTouchListener(new OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility")
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    setBackgroundColor(Color.LTGRAY);
-                }
-                else {
-                    setBackgroundColor(0x00000000);
-                }
-                return false;
+        setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                setBackgroundColor(Color.LTGRAY);
             }
+            else if (event.getAction() != MotionEvent.ACTION_MOVE){
+                setBackgroundColor(0x00000000);
+            }
+            return false;
         });
     }
 

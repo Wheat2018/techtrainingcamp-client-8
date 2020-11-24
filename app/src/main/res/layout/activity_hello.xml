@@ -8,9 +8,10 @@
     tools:context=".HelloActivity">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/flyingDog"
         android:layout_width="217dp"
         android:layout_height="230dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,26 +20,28 @@
         app:srcCompat="@mipmap/dog" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/helloTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:alpha="0"
         android:text="@string/app_name"
         android:textColor="@color/colorHelloTitle"
         android:textSize="30sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
-        app:layout_constraintStart_toStartOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/flyingDog" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/helloText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:alpha="0"
         android:text="@string/hello_text"
         android:textColor="@color/colorHelloText"
         android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
-        app:layout_constraintStart_toStartOf="@+id/imageView" />
+        app:layout_constraintBottom_toBottomOf="@+id/flyingDog"
+        app:layout_constraintEnd_toEndOf="@+id/flyingDog"
+        app:layout_constraintStart_toStartOf="@+id/flyingDog" />
 </androidx.constraintlayout.widget.ConstraintLayout>

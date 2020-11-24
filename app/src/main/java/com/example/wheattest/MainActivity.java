@@ -1,21 +1,14 @@
 package com.example.wheattest;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-
-import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,22 +25,19 @@ public class MainActivity extends AppCompatActivity {
         contentLayout = findViewById(R.id.linearLayout);
         Log.e("onCreate", "MainActivity:" + this.toString() +
                 " on Thread " + Thread.currentThread().getId());
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                JSONArray jsonArray = Utils.fileToJSONArray(getResources(), "metadata.json");
-                if (jsonArray != null) {
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        try {
-                            Announce announce = createAnnounce((JSONObject) jsonArray.get(i));
-                            Object[] obj = { MainActivity.this, announce};
-                            Message msg = new Message();
-                            msg.obj = obj;
-                            handler.sendMessage(msg);
-                            // addAnnounce((JSONObject) jsonArray.get(i));
-                        } catch (JSONException e) {
-                            Log.e("onCreate", e.toString());
-                        }
+        new Thread(() -> {
+            JSONArray jsonArray = Utils.fileToJSONArray(getResources(), "metadata.json");
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        Announce announce = createAnnounce((JSONObject) jsonArray.get(i));
+                        Object[] obj = { MainActivity.this, announce};
+                        Message msg = new Message();
+                        msg.obj = obj;
+                        handler.sendMessage(msg);
+                        // addAnnounce((JSONObject) jsonArray.get(i));
+                    } catch (JSONException e) {
+                        Log.e("onCreate", e.toString());
                     }
                 }
             }
@@ -79,8 +69,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("addAnnounce", "Cannot determine type of the announce. Use default type(" + type + ")");
         }
         Announce announce = AnnounceFactory.createAnnounce(this, type);
-        if (announce != null)
-        {
+        if (announce != null) {
             announce.setLayoutParams(Announce.params(Announce.match_parent, Announce.wrap_content, 0, null));
             announce.SetValues(values);
             announce.mainActivity = this;
