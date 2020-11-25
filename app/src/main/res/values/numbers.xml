@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="lineWidth">2</integer>
+    <integer name="batchSize">4</integer>
+    <item name="pullThresh" type="dimen" format="float">0.3</item> // 当内容底部与屏幕底部有triggerThresh倍屏幕高度距离时，触发内容拉取。
+</resources>

@@ -2,7 +2,6 @@ package com.example.todayBread.wheat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -15,28 +14,24 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.todayBread.R;
-import com.example.todayBread.wangjue.StaticInterface;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Map;
 
 public class AnnounceFactory
 {
-    private AnnounceFactory()
-    {
+    private AnnounceFactory() {
         throw new UnsupportedOperationException();
     }
     public static Announce createAnnounce(Context context, int typeId)
     {
         try {
-            Constructor cst = Class.forName("com.example.todayBread.wheat.AnnounceType" + typeId)
-                    .getConstructor(Context.class);
-            return (Announce) cst.newInstance(context);
+            return (Announce) Class.forName("com.example.todayBread.wheat.AnnounceType" + typeId)
+                    .getConstructor(Context.class)
+                    .newInstance(context);
         } catch (IllegalAccessException
                 | InstantiationException
                 | ClassNotFoundException
@@ -75,15 +70,6 @@ abstract class Announce extends LinearLayout {
         author.setGravity(Gravity.CENTER_VERTICAL);
         setWillNotDraw(false);
         setPadding(px(16), px(16), px(16), px(8));
-
-//        setOnClickListener(v -> {
-//            if (values != null){
-//                title.setTextColor(getResources().getColor(R.color.colorMarkRead, null));
-//                Intent intent = new Intent(context, ReaderActivity.class);
-//                intent.putExtra("id", values.get("id"));
-//                context.startActivity(intent);
-//            }
-//        });
 
         setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {

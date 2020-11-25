@@ -8,5 +8,4 @@
     <color name="colorHelloTitle">#FFB6AEAB</color>
     <color name="colorMarkRead">#932727</color>
 
-    <integer name="lineWidth">2</integer>
 </resources>

@@ -24,15 +24,15 @@ public class ReaderActivity extends AppCompatActivity {
 
         Utils.asyncGetArticle(articleId, (article) -> {
             runOnUiThread(() -> {
-                findViewById(R.id.loading).clearAnimation();
+//                findViewById(R.id.loading).clearAnimation();
                 findViewById(R.id.loading).setVisibility(View.INVISIBLE);
                 ((TextView)findViewById(R.id.textView)).setText(article);
             });
         });
 
         gesture = new GestureDetector(this, new Utils.FlipQuitListener(this));
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.loading_anim);
-        findViewById(R.id.loading).setAnimation(animation);
+//        Animation animation = AnimationUtils.loadAnimation(this, R.anim.loading_anim);
+//        findViewById(R.id.loading).setAnimation(animation);
     }
 
     @Override

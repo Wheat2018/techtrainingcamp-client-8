@@ -36,6 +36,7 @@
 
         <activity
             android:name="com.example.todayBread.wheat.MainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:launchMode="singleTask">
         </activity>
 

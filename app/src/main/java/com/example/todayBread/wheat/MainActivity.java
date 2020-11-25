@@ -1,5 +1,6 @@
 package com.example.todayBread.wheat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -23,63 +24,42 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
     private LinearLayout contentLayout;
     private ScrollView scrollView;
-    private boolean pullAnnounceLock = false;
-    private DataOutlet outlet;
     private ProgressBar progressBar;
+
+    private boolean pullAnnounceLock = false;   // the lock of the methods "pullAnnounce"
+    private DataOutlet outlet;
+
+    // numeric resource
+    private int batchSize;
+    private float pullThresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         contentLayout = findViewById(R.id.linearLayout);
-        Log.e("onCreate", "MainActivity:" + this.toString() +
-                " on Thread " + Thread.currentThread().getId());
-//        new Thread(() -> {
-//            JSONArray jsonArray = Utils.fileToJSONArray(getResources(), "metadata.json");
-//            if (jsonArray != null) {
-//                for (int i = 0; i < jsonArray.length(); i++) {
-//                    try {
-//                        Announce announce = createAnnounce((JSONObject) jsonArray.get(i));
-//                        Object[] obj = { MainActivity.this, announce};
-//                        Message msg = new Message();
-//                        msg.obj = obj;
-//                        handler.sendMessage(msg);
-//                    } catch (JSONException e) {
-//                        Log.e("onCreate", e.toString());
-//                    }
-//                }
-//            }
-//        }).start();
         progressBar = new ProgressBar(this);
+        scrollView = findViewById(R.id.scrollView);
         JSONArray jsonArray = Utils.fileToJSONArray(getResources(), "metadata.json");
         outlet = new DataOutlet(new IteratorConvert.JSONArrayIterator(jsonArray),
                 (values) -> createAnnounce((JSONObject) values));
 
-        scrollView = findViewById(R.id.scrollView);
-        scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            tryPullAnnounces();
-        });
+        scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> tryPullAnnounces());
         tryPullAnnounces();
-    }
 
-    private static final Handler handler = new Handler(Looper.getMainLooper()){
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            Object[] obj = (Object[]) msg.obj;
-            MainActivity main = (MainActivity) obj[0];
-            Announce announce = (Announce) obj[1];
-            main.addAnnounce(announce);
-            super.handleMessage(msg);
-        }
-    };
+        batchSize = getResources().getInteger(R.integer.batchSize);
+        pullThresh = getResources().getFloat(R.dimen.pullThresh);
+
+        Log.e("onCreate", "MainActivity:" + this.toString() + " on Thread " + Thread.currentThread().getId());
+    }
 
     public void tryPullAnnounces(){
         if (!outlet.empty() && !pullAnnounceLock &&
-                contentLayout.getHeight() - scrollView.getHeight() - scrollView.getScrollY() <= 0) {
+                contentLayout.getHeight() - scrollView.getHeight() * (1f + pullThresh) - scrollView.getScrollY() <= 0) {
             Log.e("pullAnnounces", "aa");
             pullAnnounceLock = true;
             runOnUiThread(() -> contentLayout.addView(progressBar));
-            outlet.asyncGetBatch(2, (announces) -> runOnUiThread(() -> {
+            outlet.asyncGetBatch(batchSize, (announces) -> runOnUiThread(() -> {
                 contentLayout.removeView(progressBar);
                 for (Object announce : announces) addAnnounce((Announce) announce);
                 pullAnnounceLock = false;
@@ -102,11 +82,9 @@ public class MainActivity extends AppCompatActivity {
             announce.mainActivity = this;
 
             announce.setOnClickListener(v -> {
-                if (values != null){
-                    announce.title.setTextColor(getResources().getColor(R.color.colorMarkRead, null));
-                    StaticInterface.askArticle(this, values);
-                }
-            });
+                announce.title.setTextColor(getResources().getColor(R.color.colorMarkRead, null));
+                StaticInterface.askArticle(this, values);
+                });
 
         }
         else
@@ -119,12 +97,4 @@ public class MainActivity extends AppCompatActivity {
             contentLayout.addView(announce);
     }
 
-    public int px(float dp) {
-        final float scale = getResources().getDisplayMetrics().density; //当前屏幕密度因子
-        return (int)(dp * scale + 0.5f);
-    }
-    public int dp(float px) {
-        final float scale = getResources().getDisplayMetrics().density;
-        return (int) (px / scale + 0.5f);
-    }
 }
