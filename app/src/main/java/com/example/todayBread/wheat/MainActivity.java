@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
@@ -21,6 +22,10 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     private LinearLayout contentLayout;
+    private ScrollView scrollView;
+    private boolean pullAnnounceLock = false;
+    private DataOutlet outlet;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,27 +34,32 @@ public class MainActivity extends AppCompatActivity {
         contentLayout = findViewById(R.id.linearLayout);
         Log.e("onCreate", "MainActivity:" + this.toString() +
                 " on Thread " + Thread.currentThread().getId());
-        new Thread(() -> {
-            JSONArray jsonArray = Utils.fileToJSONArray(getResources(), "metadata.json");
-            if (jsonArray != null) {
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    try {
-                        Announce announce = createAnnounce((JSONObject) jsonArray.get(i));
-                        Object[] obj = { MainActivity.this, announce};
-                        Message msg = new Message();
-                        msg.obj = obj;
-                        handler.sendMessage(msg);
-                    } catch (JSONException e) {
-                        Log.e("onCreate", e.toString());
-                    }
-                }
-            }
-        }).start();
-        ScrollView scrollView = findViewById(R.id.scrollView);
+//        new Thread(() -> {
+//            JSONArray jsonArray = Utils.fileToJSONArray(getResources(), "metadata.json");
+//            if (jsonArray != null) {
+//                for (int i = 0; i < jsonArray.length(); i++) {
+//                    try {
+//                        Announce announce = createAnnounce((JSONObject) jsonArray.get(i));
+//                        Object[] obj = { MainActivity.this, announce};
+//                        Message msg = new Message();
+//                        msg.obj = obj;
+//                        handler.sendMessage(msg);
+//                    } catch (JSONException e) {
+//                        Log.e("onCreate", e.toString());
+//                    }
+//                }
+//            }
+//        }).start();
+        progressBar = new ProgressBar(this);
+        JSONArray jsonArray = Utils.fileToJSONArray(getResources(), "metadata.json");
+        outlet = new DataOutlet(new IteratorConvert.JSONArrayIterator(jsonArray),
+                (values) -> createAnnounce((JSONObject) values));
+
+        scrollView = findViewById(R.id.scrollView);
         scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            Log.e("onScrollChange", String.format("%d, %d, %d, %d", scrollX, scrollY, oldScrollX, oldScrollY));
-            Log.e("onScrollChange", "Height: " + (contentLayout.getHeight() - scrollView.getHeight() - scrollY));
+            tryPullAnnounces();
         });
+        tryPullAnnounces();
     }
 
     private static final Handler handler = new Handler(Looper.getMainLooper()){
@@ -62,6 +72,21 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
         }
     };
+
+    public void tryPullAnnounces(){
+        if (!outlet.empty() && !pullAnnounceLock &&
+                contentLayout.getHeight() - scrollView.getHeight() - scrollView.getScrollY() <= 0) {
+            Log.e("pullAnnounces", "aa");
+            pullAnnounceLock = true;
+            runOnUiThread(() -> contentLayout.addView(progressBar));
+            outlet.asyncGetBatch(2, (announces) -> runOnUiThread(() -> {
+                contentLayout.removeView(progressBar);
+                for (Object announce : announces) addAnnounce((Announce) announce);
+                pullAnnounceLock = false;
+                tryPullAnnounces();
+            }));
+        }
+    }
 
     public Announce createAnnounce(JSONObject values){
         int type = 0;

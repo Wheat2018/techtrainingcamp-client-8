@@ -11,27 +11,42 @@
         android:roundIcon="@mipmap/dog_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.example.todayBread.wangjue.LoginActivity"/>
-        <activity android:name="com.example.todayBread.wangjue.ImageTextActivity"/>
-        <activity android:name="com.example.todayBread.wheat.HelloActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <activity
+            android:name="com.example.todayBread.wangjue.LoginActivity"
+            android:launchMode="singleTop">
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
-            android:name="com.example.todayBread.wheat.ReaderActivity"
+            android:name="com.example.todayBread.wangjue.ImageTextActivity"
+            android:launchMode="singleTop"
             android:parentActivityName="com.example.todayBread.wheat.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.todayBread.wheat.MainActivity" />
         </activity>
+
+        <activity
+            android:name="com.example.todayBread.wheat.HelloActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name="com.example.todayBread.wheat.MainActivity"
             android:launchMode="singleTask">
         </activity>
-    </application>
+
+
+        <activity
+            android:name="com.example.todayBread.wheat.ReaderActivity"
+            android:launchMode="singleTop"
+            android:parentActivityName="com.example.todayBread.wheat.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.todayBread.wheat.MainActivity" />
+        </activity>    </application>
 
 </manifest>
