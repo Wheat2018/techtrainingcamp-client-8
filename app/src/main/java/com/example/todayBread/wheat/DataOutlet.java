@@ -53,7 +53,7 @@ public class DataOutlet{
     }
 
     public boolean empty(){
-        return !dataIterator.hasNext();
+        return !dataIterator.hasNext() && packedDataBuffer.isEmpty();
     }
 
     /**
