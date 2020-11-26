@@ -1,13 +1,9 @@
-package com.example.todayBread.wheat;
+package com.example.todayBread.wheat.Utils;
 
-import android.app.Activity;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
+
+import com.example.todayBread.wheat.UserInfo;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -25,104 +21,49 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+/**
+ * 提供常用函数或类。
+ */
 public class Utils {
     private Utils() {
         throw new UnsupportedOperationException();
     }
 
-    public static class FlipQuitListener extends GestureDetector.SimpleOnGestureListener{
-        Activity activity;
-        public FlipQuitListener(Activity activity){
-            this.activity = activity;
-        }
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return true;
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            float x = e2.getX() - e1.getX();
-            float y = Math.abs(e2.getY() - e1.getY());
-            if (x > Utils.screenWidth(activity.getResources()) / 4.0 && Math.abs(y / x) < 0.577){
-                activity.finish();
-                return true;
-            }
-            return false;
-        }
-    }
-
-    public static int dp2px(Resources resources, float dp) {
+    public static int dp2px(@NotNull Resources resources, float dp) {
         final float scale = resources.getDisplayMetrics().density; //当前屏幕密度因子
         return (int) (dp * scale + 0.5f);
     }
 
-    public static int px2dp(Resources resources, float px) {
+    public static int px2dp(@NotNull Resources resources, float px) {
         final float scale = resources.getDisplayMetrics().density;
         return (int) (px / scale + 0.5f);
     }
 
-    public static int screenWidth(Resources resources){
+    /**
+     * 获取屏幕宽度。
+     * @param resources 资源对象，通常由主调方Activity或context的成员函数getResource获得。
+     * @return 屏幕宽度像素值(px)。
+     */
+    public static int screenWidth(@NotNull Resources resources){
         return resources.getDisplayMetrics().widthPixels;
     }
 
-    public static int screenHeight(Resources resources){
+    /**
+     * 获取屏幕高度。
+     * @param resources 资源对象，通常由主调方Activity或context的成员函数getResource获得。
+     * @return 屏幕高度像素值(px)。
+     */
+    public static int screenHeight(@NotNull Resources resources){
         return resources.getDisplayMetrics().heightPixels;
     }
 
-    public static Bitmap getLoadFailBitmap(Resources resources)
-    {
-        int picId = resources.getIdentifier("android:drawable/ic_menu_report_image",
-                null, null);
-        return BitmapFactory.decodeStream(resources.openRawResource(picId));
-    }
-
-    public static Bitmap loadBitmap(@NotNull Resources resources, String fileName) throws IOException {
-        try (InputStream is = resources.getAssets().open(fileName)) {
-            return BitmapFactory.decodeStream(is);
-        }
-    }
-
-    public static Bitmap safeLoadBitmap(@NotNull Resources resources, String fileName){
-        try {
-            return loadBitmap(resources, fileName);
-        } catch (IOException e) {
-            Log.e("safeLoadBitmap", e.toString());
-            return getLoadFailBitmap(resources);
-        }
-    }
-
-    public static Bitmap loadScaleBitmap(@NotNull Resources resources, String fileName,
-                                         int width, int height) throws IOException {
-        Bitmap bitmap = loadBitmap(resources, fileName);
-        return Utils.scaleMatrix(bitmap, width, height);
-    }
-
-    public static Bitmap safeLoadScaleBitmap(@NotNull Resources resources, String fileName,
-                                             int width, int height){
-        try {
-            return loadScaleBitmap(resources, fileName, width, height);
-        } catch (IOException e) {
-            Log.e("safeLoadScaleBitmap", e.toString());
-            return getLoadFailBitmap(resources);
-        }
-    }
-
-    public static Bitmap scaleMatrix(@NotNull Bitmap bitmap, int width, int height) {
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
-        float scaleW = (float) width / w;
-        float scaleH = (float) height / h;
-        if (width <= 0) scaleW = scaleH;
-        if (height <= 0) scaleH = scaleW;
-
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleW, scaleH); // 长和宽放大缩小的比例
-        return Bitmap.createBitmap(bitmap, 0, 0, w, h, matrix, true);
-    }
-
-    public static String fileToString(Resources resources, String fileName) {
+    /**
+     * 将文件以字符串形式读入。
+     * @param resources 资源对象，通常由主调方Activity或context的成员函数getResource获得。
+     * @param fileName 文件名。
+     * @return 文件的文本内容。
+     */
+    public static String fileToString(@NotNull Resources resources, String fileName) {
         StringBuilder stringBuilder = new StringBuilder();
         try (InputStream is = resources.getAssets().open(fileName)) {
             BufferedReader bf = new BufferedReader(new InputStreamReader(is));
@@ -136,6 +77,12 @@ public class Utils {
         return stringBuilder.toString();
     }
 
+    /**
+     * 将文件以JSONArray的形式读入。
+     * @param resources 资源对象，通常由主调方Activity或context的成员函数getResource获得。
+     * @param fileName 文件名。
+     * @return 存储文件内容的JSONArray
+     */
     public static JSONArray fileToJSONArray(Resources resources, String fileName) {
         try {
             return new JSONArray(fileToString(resources, fileName));
@@ -145,6 +92,11 @@ public class Utils {
         return null;
     }
 
+    /**
+     * 将JSONObject转换为Map&lt String, String&gt。
+     * @param jsonObject JSONObject实例。
+     * @return Map&lt String, String&gt实例。
+     */
     public static Map<String, String> jsonObjectToMap(JSONObject jsonObject) {
         Map<String, String> map = new HashMap<>();
         Iterator<String> it = jsonObject.keys();
@@ -156,10 +108,12 @@ public class Utils {
         return map;
     }
 
-    interface Function<Arg>{
-        void run(Arg arg);
-    }
-    public static void asyncGetArticle(String id, Function<String> callBack){
+    /**
+     * 异步获取文章，并调用回调函数。
+     * @param id 文章ID。
+     * @param callback 回调函数。
+     */
+    public static void asyncGetArticle(String id, Function<String> callback){
         new Thread(() -> {
             String article = null;
             try {
@@ -167,9 +121,17 @@ public class Utils {
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
-            callBack.run(article);
+            callback.run(article);
         }).start();
     }
+
+    /**
+     * 同步获取文章。
+     * @param id 文章ID。
+     * @return 文章文本。
+     * @throws IOException 网络连接失败或请求被拒等情况下抛出。
+     * @throws JSONException 返回的数据包不符合预期等情况下抛出。
+     */
     public static String getArticle(final String id) throws IOException, JSONException {
         UserInfo.USER.setInfo("string", "string");
         UserInfo.USER.login();

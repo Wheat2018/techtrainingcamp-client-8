@@ -5,12 +5,17 @@
 
 package com.example.todayBread.wheat;
 
+import android.util.Log;
+
+
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.Function;
 
 /**
@@ -20,20 +25,44 @@ import java.util.function.Function;
  */
 public class DataOutlet{
     private final Iterator<Object> dataIterator;
-    private final Function<Object, Object> dataPacker;
+    private final ArrayBlockingQueue<Object> packedDataBuffer;
 
     /**
      * 构造函数。
      * @param dataIterator 数据迭代器。
      * @param dataPacker 数据包装器。
+     * @param capacity 包装数据缓冲队列最大容量。
      */
-    public DataOutlet(Iterator<Object> dataIterator, Function<Object, Object> dataPacker){
+    public DataOutlet(@NotNull Iterator<Object> dataIterator, Function<Object, Object> dataPacker, int capacity){
         this.dataIterator = dataIterator;
-        this.dataPacker = dataPacker;
+        this.packedDataBuffer = new ArrayBlockingQueue<>(capacity);
+        new Thread(() -> {
+            while (dataIterator.hasNext()) {
+                try {
+                    packedDataBuffer.put(dataPacker == null ?
+                            dataIterator.next() : dataPacker.apply(dataIterator.next()));
+                } catch (InterruptedException e) {
+                    Log.e("DataOutletProductThread", e.toString());
+                }
+            }
+        }).start();
+    }
+
+    public DataOutlet(Iterator<Object> dataIterator, Function<Object, Object> dataPacker){
+        this(dataIterator, dataPacker, 16);
     }
 
     public boolean empty(){
         return !dataIterator.hasNext();
+    }
+
+    /**
+     * 测试批发器是否已准备好指定批量大小的数据，若已准备好，调用getBatch能立即返回。
+     * @param batchSize 批量大小。
+     * @return 是否已准备好。
+     */
+    public boolean testBatch(int batchSize){
+        return !dataIterator.hasNext() || packedDataBuffer.size() >= batchSize;
     }
 
     /**
@@ -43,9 +72,13 @@ public class DataOutlet{
      */
     public Object[] getBatch(int batchSize){
         ArrayList<Object> batch = new ArrayList<>(batchSize);
-        while (dataIterator.hasNext() && batchSize > 0){
-            --batchSize;
-            batch.add(dataPacker.apply(dataIterator.next()));
+        packedDataBuffer.drainTo(batch, batchSize);
+        while (dataIterator.hasNext() && batch.size() < batchSize){
+            try {
+                batch.add(packedDataBuffer.take());
+            } catch (InterruptedException e) {
+                Log.e("getBatch", e.toString());
+            }
         }
         return batch.toArray();
     }
@@ -55,13 +88,15 @@ public class DataOutlet{
      * @param batchSize 批量大小。
      * @param callback 完成时回调。要求一个以Object[]为唯一参数的Lambda。
      */
-    public void asyncGetBatch(int batchSize, Utils.Function<Object[]> callback){
-        new Thread(() -> {
-            callback.run(getBatch(batchSize));
-        }).start();
+    public void asyncGetBatch(int batchSize, com.example.todayBread.wheat.Utils.Function<Object[]> callback){
+        if (testBatch(batchSize)) callback.run(getBatch(batchSize));
+        else new Thread(() -> callback.run(getBatch(batchSize))).start();
     }
 }
 
+/**
+ * 将某些数组转换成可迭代对象。
+ */
 class IteratorConvert{
     static class JSONArrayIterator implements Iterator<Object>{
         private final JSONArray array;

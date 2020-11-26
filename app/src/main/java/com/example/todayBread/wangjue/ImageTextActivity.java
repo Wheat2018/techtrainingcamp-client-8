@@ -2,9 +2,7 @@ package com.example.todayBread.wangjue;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Typeface;
@@ -29,7 +27,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.todayBread.R;
 import com.example.todayBread.wheat.UserInfo;
-import com.example.todayBread.wheat.Utils;
+import com.example.todayBread.wheat.Utils.FlipQuitListener;
+import com.example.todayBread.wheat.Utils.ImageUtils;
+import com.example.todayBread.wheat.Utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -106,7 +106,7 @@ public class ImageTextActivity extends AppCompatActivity {
         get();
 
         /** Add by wheat. 2020-11-24 **/
-        gesture = new GestureDetector(this, new Utils.FlipQuitListener(this));
+        gesture = new GestureDetector(this, new FlipQuitListener(this));
         /** Add by wheat. 2020-11-24 **/
 
     }
@@ -144,7 +144,7 @@ public class ImageTextActivity extends AppCompatActivity {
 //                int resID = getResources().getIdentifier(pic, "drawable", appInfo.packageName);
 //                Bitmap bitmap = BitmapFactory.decodeResource(getResources(),resID);
                 String pic = t.substring(t.indexOf('(') + 1, t.indexOf(')'));
-                Bitmap bitmap = Utils.safeLoadBitmap(getResources(), pic);
+                Bitmap bitmap = ImageUtils.safeLoadBitmap(getResources(), pic);
                 /** modified by wheat. 2020-11-24 **/
 
                 SpannableString ss = new SpannableString("pict");

@@ -2,6 +2,7 @@ package com.example.todayBread.wheat;
 
 import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,6 +11,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -18,6 +20,22 @@ public enum UserInfo {
     private String username = null, password = null;
     private String token = null;
     private Object[] messages = null;
+    private final ArrayList<Runnable> infoChangeListener = new ArrayList<>();
+
+    /**
+     * 添加用户信息更改触发。
+     * @param runnable 触发函数。
+     */
+    public void setInfoChangeListener(@NotNull Runnable runnable){
+        infoChangeListener.add(runnable);
+    }
+
+    /**
+     * 立即触发用户信息更改。
+     */
+    public void onInfoChange(){
+        if (!infoChangeListener.isEmpty()) infoChangeListener.forEach(Runnable::run);
+    }
 
     /**
      * 外部登录，设置用户信息。
@@ -31,26 +49,24 @@ public enum UserInfo {
         this.password = password;
         this.token = token;
         this.messages = messages;
+        onInfoChange();
     }
 
     /**
-     * 仅设置登录信息。
+     * 仅设置登录信息。该操作将退出登陆状态。
      * 推荐使用asyncLogin函数登录。
      * @param username 用户名。
      * @param password 密码。
      */
-    public void setInfo(String username, String password){
-        this.username = username;
-        this.password = password;
+    public void setInfo(String username, String password) {
+        setInfo(username, password, null, null);
     }
 
     /**
      * 获取登录状态。
      * @return true已登录， false未登录。
      */
-    public boolean getLoginState(){
-        return token != null;
-    }
+    public boolean getLoginState() { return getToken() != null; }
 
     // Getter 访问器
     public String getPassword() { return password; }
@@ -59,8 +75,13 @@ public enum UserInfo {
     public Object[] getMessages() { return messages; }
 
     /**
+     * 退出登录。
+     */
+    public void logout() { setInfo(getUsername(), getPassword()); }
+
+    /**
      * 同步登录，使用用户账号和密码申请登录，在服务器响应之前，线程处于阻塞状态。
-     * 登录后调用getLoginState检查登陆状态。
+     * 登录后可调用getLoginState检查登陆状态。
      * @throws IOException URL创建或参数错误、服务器连接失败、拒绝访问等情况下抛出。
      * @throws JSONException 服务器响应数据不符合预期，如不包含"token"字段等情况下抛出。
      */
@@ -76,7 +97,8 @@ public enum UserInfo {
             connection.setReadTimeout(5000);
             try (DataOutputStream dos = new DataOutputStream(connection.getOutputStream()))
             {
-                dos.writeBytes("{ \"username\": \"" + username + "\", \"password\": \"" + password + "\"}");
+                dos.writeBytes("{ \"username\": \"" + getUsername()
+                        + "\", \"password\": \"" + getPassword() + "\"}");
                 dos.flush();
             }
             try (BufferedReader reader = new BufferedReader(
@@ -87,7 +109,7 @@ public enum UserInfo {
                 while ((line = reader.readLine()) != null)
                     builder.append(line);
                 JSONObject object = new JSONObject(builder.toString());
-                token = object.getString("token");
+                setInfo(getUsername(), getPassword(), object.getString("token"), getMessages());
             }
 
         }finally {

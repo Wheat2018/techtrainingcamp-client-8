@@ -54,9 +54,12 @@ public class StaticInterface {
             activity.startActivity(in);
             return true;
         }
-        if(UserInfo.USER.getUsername().equals("")||UserInfo.USER.getPassword().equals("")){
-            return false;
-        }
+        /** Changed by wheat. 2020-11-24 **/
+//        if(UserInfo.USER.getUsername().equals("")||UserInfo.USER.getPassword().equals("")){
+//            return false;
+//        }
+        if (UserInfo.USER.getUsername() == null || UserInfo.USER.getPassword() == null) return false;
+        /** Changed by wheat. 2020-11-24 **/
         post();
         return true;
     }

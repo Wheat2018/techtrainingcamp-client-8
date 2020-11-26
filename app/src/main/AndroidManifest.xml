@@ -13,11 +13,17 @@
         android:theme="@style/AppTheme">
         <activity
             android:name="com.example.todayBread.wangjue.LoginActivity"
-            android:launchMode="singleTop">
+            android:label="登录"
+            android:launchMode="singleTop"
+            android:parentActivityName="com.example.todayBread.wheat.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.todayBread.wheat.MainActivity" />
 
         </activity>
         <activity
             android:name="com.example.todayBread.wangjue.ImageTextActivity"
+            android:label="文章详情"
             android:launchMode="singleTop"
             android:parentActivityName="com.example.todayBread.wheat.MainActivity">
             <meta-data
@@ -28,16 +34,17 @@
         <activity
             android:name="com.example.todayBread.wheat.HelloActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity
             android:name="com.example.todayBread.wheat.MainActivity"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
 
@@ -48,6 +55,7 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.todayBread.wheat.MainActivity" />
-        </activity>    </application>
+        </activity>
+    </application>
 
 </manifest>

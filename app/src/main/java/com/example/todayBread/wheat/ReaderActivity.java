@@ -6,11 +6,11 @@ import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.example.todayBread.R;
+import com.example.todayBread.wheat.Utils.FlipQuitListener;
+import com.example.todayBread.wheat.Utils.Utils;
 
 public class ReaderActivity extends AppCompatActivity {
     private GestureDetector gesture;
@@ -22,15 +22,13 @@ public class ReaderActivity extends AppCompatActivity {
 
         final String articleId = getIntent().getStringExtra("id");
 
-        Utils.asyncGetArticle(articleId, (article) -> {
-            runOnUiThread(() -> {
+        Utils.asyncGetArticle(articleId, (article) -> runOnUiThread(() -> {
 //                findViewById(R.id.loading).clearAnimation();
-                findViewById(R.id.loading).setVisibility(View.INVISIBLE);
-                ((TextView)findViewById(R.id.textView)).setText(article);
-            });
-        });
+            findViewById(R.id.loading).setVisibility(View.INVISIBLE);
+            ((TextView)findViewById(R.id.textView)).setText(article);
+        }));
 
-        gesture = new GestureDetector(this, new Utils.FlipQuitListener(this));
+        gesture = new GestureDetector(this, new FlipQuitListener(this));
 //        Animation animation = AnimationUtils.loadAnimation(this, R.anim.loading_anim);
 //        findViewById(R.id.loading).setAnimation(animation);
     }

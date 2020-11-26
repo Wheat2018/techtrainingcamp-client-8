@@ -97,6 +97,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = edt2.getText().toString();
         m.put("username",username);
         m.put("password",password);
+        UserInfo.USER.setInfo(username, password);
         JSONObject json = new JSONObject(m);
         String jsonstr = json.toString();
         RequestBody req = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),jsonstr);

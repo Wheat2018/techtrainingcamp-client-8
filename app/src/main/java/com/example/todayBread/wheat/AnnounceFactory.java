@@ -14,6 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.todayBread.R;
+import com.example.todayBread.wheat.Utils.ImageUtils;
+import com.example.todayBread.wheat.Utils.Utils;
 
 import org.json.JSONObject;
 
@@ -99,8 +101,10 @@ abstract class Announce extends LinearLayout {
 
     // ==========Utility Methods===========
 
-    public static LinearLayout.LayoutParams params(int width, int height, int weight) { return params(width, height, weight, null); }
-    public static LinearLayout.LayoutParams params(int width, int height, int weight, Rect margins) {
+    public static LinearLayout.LayoutParams params(int width, int height, float weight) {
+        return params(width, height, weight, null);
+    }
+    public static LinearLayout.LayoutParams params(int width, int height, float weight, Rect margins) {
         LinearLayout.LayoutParams imParams = new LinearLayout.LayoutParams(width, height);
         imParams.weight = weight;
         if (margins != null)
@@ -131,8 +135,8 @@ class AnnounceType0 extends Announce {
         addView(subLayout);
 
         // Layout
-        title.setLayoutParams(params(match_parent, wrap_content, 1));
-        author.setLayoutParams(params(match_parent, wrap_content, 0));
+        title.setLayoutParams(params(match_parent, wrap_content, 2));
+        author.setLayoutParams(params(match_parent, wrap_content, 1));
         subLayout.setLayoutParams(params(wrap_content, match_parent, 1));
     }
 
@@ -157,7 +161,7 @@ class AnnounceType1 extends AnnounceType0 {
     public void SetValues(Map<String, String> values) {
         super.SetValues(values);
         final int w = Utils.screenWidth(getResources()) / 4 - px(16) * 2;
-        image.setImageBitmap(Utils.safeLoadScaleBitmap(getResources(), values.get("cover"), w, 0));
+        image.setImageBitmap(ImageUtils.safeLoadScaleBitmap(getResources(), values.get("cover"), w, 0));
     }
 }
 
@@ -179,8 +183,8 @@ class AnnounceType2 extends AnnounceType0 {
     public void SetValues(Map<String, String> values)
     {
         super.SetValues(values);
-        final int w = Utils.screenWidth(getResources()) / 4 - Utils.dp2px(getResources(), 16) * 2;
-        image.setImageBitmap(Utils.safeLoadScaleBitmap(getResources(), values.get("cover"), w, 0));
+        final int w = Utils.screenWidth(getResources()) / 4 - px(16) * 2;
+        image.setImageBitmap(ImageUtils.safeLoadScaleBitmap(getResources(), values.get("cover"), w, 0));
     }
 }
 
@@ -207,7 +211,7 @@ class AnnounceType3 extends Announce {
     @Override
     public void SetValues(Map<String, String> values) {
         super.SetValues(values);
-        image.setImageBitmap(Utils.safeLoadBitmap(getResources(), values.get("cover")));
+        image.setImageBitmap(ImageUtils.safeLoadBitmap(getResources(), values.get("cover")));
     }
 }
 
@@ -232,6 +236,7 @@ class AnnounceType4 extends Announce {
         title.setLayoutParams(params(match_parent, wrap_content, 1));
         subLayout.setLayoutParams(params(match_parent, wrap_content, 2,
                 new Rect(0, px(16), 0, px(16))));
+        subLayout.setGravity(Gravity.CENTER);
         author.setLayoutParams(params(match_parent, wrap_content, 0));
     }
 
@@ -247,7 +252,7 @@ class AnnounceType4 extends Announce {
             Log.e("SetValues", "The announce requires multiple pictures, but json values have no \"covers\"");
             ImageView image = new ImageView(getContext());
             image.setLayoutParams(params(match_parent, match_parent, 0, null));
-            image.setImageBitmap(Utils.getLoadFailBitmap(getResources()));
+            image.setImageBitmap(ImageUtils.getLoadFailBitmap(getResources()));
             subLayout.addView(image);
         }
         else {
@@ -255,7 +260,7 @@ class AnnounceType4 extends Announce {
             for (String name : covers.split(",")) {
                 name = name.substring(1, name.length() - 1);
                 ImageView image = new ImageView(getContext());
-                image.setImageBitmap(Utils.safeLoadScaleBitmap(getResources(), name, w, 0));
+                image.setImageBitmap(ImageUtils.safeLoadScaleBitmap(getResources(), name, w, 0));
                 if (subLayout.getChildCount() == 0)
                     image.setLayoutParams(params(wrap_content, match_parent, 0, null));
                 else

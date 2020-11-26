@@ -19,17 +19,17 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:text="用户名:"
             android:textColor="#000000"
-            android:text="username:"
-            android:textSize="19sp"/>
+            android:textSize="19sp" />
 
         <EditText
             android:id="@+id/etname"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2.5"
             android:layout_marginLeft="10dp"
-            android:hint="Please enter password" />
+            android:layout_weight="2.5"
+            android:hint="输入用户名" />
     </LinearLayout>
 
     <LinearLayout
@@ -45,27 +45,27 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:text="密    码:"
             android:textColor="#000000"
-            android:text="password:"
-            android:textSize="19sp"/>
+            android:textSize="19sp" />
 
         <EditText
             android:id="@+id/etpass"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2.5"
-            android:inputType="textPassword"
             android:layout_marginLeft="10dp"
-            android:hint="Please enter password" />
+            android:layout_weight="2.5"
+            android:hint="输入密码"
+            android:inputType="textPassword" />
     </LinearLayout>
 
-    <CheckBox
+    <ProgressBar
+        android:id="@+id/pb"
+        style="@style/Widget.AppCompat.ProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="save username and password"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="15dp"
-        android:textSize="17sp"/>
+        android:layout_gravity="center"
+        android:visibility="invisible" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -74,39 +74,36 @@
         android:gravity="center_horizontal"
         android:layout_marginTop="25dp"
         >
+
         <Button
             android:id="@+id/clear"
-            android:layout_width="150dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CLEAR DATA"
-            android:textSize="18sp"
-            android:background="@color/colorPrimaryDark"
-            android:textColor="#FFFFFF"
             android:layout_marginRight="40dp"
-            />
+            android:background="@color/colorPrimaryDark"
+            android:text="清空"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp" />
+
         <Button
             android:id="@+id/bt1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login"
-            android:textSize="18sp"
             android:background="@color/colorPrimaryDark"
+            android:text="登录"
             android:textColor="#FFFFFF"
-            />
+            android:textSize="18sp" />
 
     </LinearLayout>
 
-
-    <ProgressBar
-        style="@style/Widget.AppCompat.ProgressBar"
-        android:id="@+id/pb"
+    <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="45dp"
-        android:layout_gravity="center"
-        android:visibility="invisible"
-        />
-
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="15dp"
+        android:text="save username and password"
+        android:textSize="17sp"
+        android:visibility="invisible" />
 
 
 </LinearLayout>
