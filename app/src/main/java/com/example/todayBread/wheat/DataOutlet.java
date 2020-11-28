@@ -52,6 +52,10 @@ public class DataOutlet{
         this(dataIterator, dataPacker, 16);
     }
 
+    /**
+     * 判断数据批发器是否还有剩余数据。
+     * @return true表示仍有剩余数据，false表示缓冲池为空且数据迭代器不可再迭代。
+     */
     public boolean empty(){
         return !dataIterator.hasNext() && packedDataBuffer.isEmpty();
     }

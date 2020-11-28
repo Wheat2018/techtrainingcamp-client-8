@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">今日面包</string>
-    <string name="title_text">公告板</string>
+    <string name="title_text">@string/app_name</string>
     <string name="hello_text">面包会有的 牛奶也会有的</string>
 </resources>

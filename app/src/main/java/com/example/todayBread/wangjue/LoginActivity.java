@@ -40,30 +40,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText edt2;
     private Intent in;
     String id;
-    private Handler myhandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            try {
-                JSONObject jsonObject = new JSONObject(rts);
-                rts = jsonObject.getString("token");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            UserInfo.USER.setInfo(UserInfo.USER.getUsername(),UserInfo.USER.getPassword(),rts,null);
-//            SharedPreferences shp = getSharedPreferences("token",MODE_PRIVATE);
-//            SharedPreferences.Editor editor = shp.edit();
-//            editor.putString("token",rts);
-//            boolean isSuccess = editor.commit();
-            if(id.equals(" "))
-                finish();
-            else {
-                in = new Intent(LoginActivity.this, ImageTextActivity.class);
-                in.putExtra("id",id);
-                startActivity(in);
-            }
-            finish();
-        }
-    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +67,27 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private Handler myhandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            try {
+                JSONObject jsonObject = new JSONObject(rts);
+                rts = jsonObject.getString("token");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            UserInfo.USER.setInfo(UserInfo.USER.getUsername(),UserInfo.USER.getPassword(),rts,null);
+            if(id.equals(" "))
+                finish();
+            else {
+                in = new Intent(LoginActivity.this, ImageTextActivity.class);
+                in.putExtra("id",id);
+                startActivity(in);
+            }
+            finish();
+        }
+    };
+
     private void post() {
         OkHttpClient client = new OkHttpClient.Builder().build();
         Map m= new HashMap();
@@ -115,7 +113,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 rts = response.body().string();
-                //这里要加段代码，如果选项框选中了，则保存输入框中的账号密码到本地
                 myhandler.sendEmptyMessage(0);
             }
         });
