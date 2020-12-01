@@ -61,6 +61,12 @@ public class DataOutlet{
     }
 
     /**
+     * 获取当前数据缓冲队列数据个数。
+     * @return 当前数据缓冲队列数据个数。
+     */
+    public int bufferCount() { return packedDataBuffer.size(); }
+
+    /**
      * 测试批发器是否已准备好指定批量大小的数据，若已准备好，调用getBatch能立即返回。
      * @param batchSize 批量大小。
      * @return 是否已准备好。

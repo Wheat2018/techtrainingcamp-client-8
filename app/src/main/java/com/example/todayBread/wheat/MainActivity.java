@@ -1,10 +1,7 @@
 package com.example.todayBread.wheat;
 
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,15 +22,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
-
 
 public class MainActivity extends AppCompatActivity {
     private LinearLayout contentLayout;
     private NestedScrollView scrollView;
     private ProgressBar progressBar;
 
-    private boolean pullAnnounceLock = false;   // the lock of the methods "pullAnnounce"
+    private boolean pullAnnounceLock = false;   // the special lock of the methods "pullAnnounce"
     private DataOutlet outlet;
 
     // numeric resource
@@ -99,6 +94,23 @@ public class MainActivity extends AppCompatActivity {
             }
             else StaticInterface.askLogin(this, true);
         });
+
+        //data buffer listener
+        new Thread(() ->{
+            while (!outlet.empty()){
+                int cnt = outlet.bufferCount();
+                runOnUiThread(() ->{
+                    ((TextView)findViewById(R.id.bufferTextView)).setText(String.valueOf(cnt));
+                    findViewById(R.id.bufferTextView).setVisibility(cnt == 0 ? View.INVISIBLE : View.VISIBLE);
+                });
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            runOnUiThread(() -> findViewById(R.id.bufferTextView).setVisibility(View.INVISIBLE));
+        }).start();
     }
 
     /**
