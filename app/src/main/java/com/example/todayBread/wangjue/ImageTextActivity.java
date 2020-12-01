@@ -2,21 +2,9 @@ package com.example.todayBread.wangjue;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.ImageSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StyleSpan;
-import android.text.style.URLSpan;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
@@ -28,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.todayBread.R;
 import com.example.todayBread.wheat.UserInfo;
 import com.example.todayBread.wheat.Utils.FlipQuitListener;
-import com.example.todayBread.wheat.Utils.ImageUtils;
 import com.example.todayBread.wheat.Utils.Utils;
 
 import org.json.JSONArray;
@@ -72,7 +59,12 @@ public class ImageTextActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        get();
+        SharedPreferences shp1 = getSharedPreferences(id,MODE_PRIVATE);
+        rts = shp1.getString("article","none");
+        if(rts.equals("none"))
+            get();
+        else
+            show();
         /** Add by wheat. 2020-11-24 **/
         gesture = new GestureDetector(this, new FlipQuitListener(this));
         /** Add by wheat. 2020-11-24 **/
@@ -94,7 +86,7 @@ public class ImageTextActivity extends AppCompatActivity {
                 try {
                     JSONObject jsonObject = new JSONObject(rts);
                     rts = jsonObject.getString("data");
-                    SharedPreferences shp = getSharedPreferences("article",MODE_PRIVATE);
+                    SharedPreferences shp = getSharedPreferences(id,MODE_PRIVATE);
                     SharedPreferences.Editor editor = shp.edit();
                     editor.putString("article",rts);
                     boolean isSuccess = editor.commit();
@@ -110,8 +102,6 @@ public class ImageTextActivity extends AppCompatActivity {
     private void show() {
         LinearLayout linearLayout = findViewById(R.id.layout);
         linearLayout.removeViewAt(2);
-        SharedPreferences shp1 = getSharedPreferences("article",MODE_PRIVATE);
-        rts = shp1.getString("article","none");
         String[] putout =rts.split("\n"); //得到输出在屏幕上的正文字符串数组
         for(int i=0 ; i<putout.length ; i++) {
             if(putout[i].length()==0){
